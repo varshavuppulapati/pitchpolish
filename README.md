@@ -13,12 +13,10 @@ Paste a job posting and your resume bullets. PitchPolish extracts the job's must
 ```bash
 git clone https://github.com/varshavuppulapati/pitchpolish.git
 cd pitchpolish
-python -m venv .venv
-source .venv/bin/activate  # .venv\Scripts\activate on Windows
-pip install -r requirements.txt
-cp .env.example .env       # then add your OPENAI_API_KEY
 python app.py
 ```
+
+That's it — no venv, no `pip install`, no `.env` to hand-edit first. The first run installs any missing dependencies automatically and asks for your OpenAI API key once ([get one here](https://platform.openai.com/api-keys)), then saves it to a local `.env` so you're never asked again.
 
 Open http://localhost:5001, paste a job description and your bullets (one per line), and hit **Tailor my resume**.
 
@@ -26,11 +24,12 @@ Open http://localhost:5001, paste a job description and your bullets (one per li
 
 ```
 pitchpolish/
-├── app.py                  # Flask routes
+├── app.py                  # Flask routes + startup bootstrap
 ├── core/
-│   ├── llm.py               # OpenAI client wrapper
-│   ├── prompts.py           # Prompt templates
-│   └── tailor.py            # Keyword extraction, scoring, rewriting
+│   ├── setup.py              # Auto-installs deps, prompts + saves API key on first run
+│   ├── llm.py                # OpenAI client wrapper
+│   ├── prompts.py            # Prompt templates
+│   └── tailor.py             # Keyword extraction, scoring, rewriting
 ├── templates/index.html
 ├── static/style.css
 ├── tests/test_tailor.py

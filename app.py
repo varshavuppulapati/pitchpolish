@@ -1,9 +1,11 @@
-from dotenv import load_dotenv
-from flask import Flask, render_template, request
+from core.setup import ensure_api_key, ensure_dependencies
 
-from core.tailor import extract_keywords, rewrite_bullets, score_match
+ensure_dependencies()
+ensure_api_key()
 
-load_dotenv()
+from flask import Flask, render_template, request  # noqa: E402
+
+from core.tailor import extract_keywords, rewrite_bullets, score_match  # noqa: E402
 
 app = Flask(__name__)
 
