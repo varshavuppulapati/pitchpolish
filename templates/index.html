@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PitchPolish — Resume Tailor</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <h1>PitchPolish</h1>
+  <p>Paste a job posting and your resume bullets. Get a match score, a gap list, and rewritten bullets.</p>
+</header>
+
+<main>
+  <form method="post" action="/tailor">
+    <label for="job_description">Job description</label>
+    <textarea id="job_description" name="job_description" rows="10" placeholder="Paste the job posting here...">{{ job_description or '' }}</textarea>
+
+    <label for="resume_bullets">Resume bullets (one per line)</label>
+    <textarea id="resume_bullets" name="resume_bullets" rows="8" placeholder="Built a Python audit platform that...">{{ resume_bullets or '' }}</textarea>
+
+    <button type="submit">Tailor my resume</button>
+  </form>
+
+  {% if error %}
+  <div class="alert">{{ error }}</div>
+  {% endif %}
+
+  {% if match %}
+  <section class="results">
+    <h2 class="score">Match score: {{ match.score }}%</h2>
+
+    <div class="cols">
+      <div>
+        <h3>Must-have — found</h3>
+        <ul class="pills found">{% for k in match.must_have_found %}<li>{{ k }}</li>{% endfor %}</ul>
+        <h3>Must-have — missing</h3>
+        <ul class="pills missing">{% for k in match.must_have_missing %}<li>{{ k }}</li>{% endfor %}</ul>
+      </div>
+      <div>
+        <h3>Nice-to-have — found</h3>
+        <ul class="pills found">{% for k in match.nice_to_have_found %}<li>{{ k }}</li>{% endfor %}</ul>
+        <h3>Nice-to-have — missing</h3>
+        <ul class="pills missing">{% for k in match.nice_to_have_missing %}<li>{{ k }}</li>{% endfor %}</ul>
+      </div>
+    </div>
+
+    <h2>Rewritten bullets</h2>
+    <div class="bullets">
+      {% for b in rewritten %}
+      <div class="bullet-pair">
+        <p class="original">{{ b.original }}</p>
+        <p class="rewritten">{{ b.rewritten }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</main>
+</body>
+</html>
