@@ -7,16 +7,35 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+<div class="blobs" aria-hidden="true"><span class="b1"></span><span class="b2"></span><span class="b3"></span></div>
+
 <header>
-  <h1>PitchPolish</h1>
+  <h1>🎯 PitchPolish</h1>
   <p>Paste a job posting. Paste your bullets or drop in your resume file. Get a match score, a gap list, and rewritten bullets — instantly.</p>
 </header>
 
 <main>
+  <ol class="steps" id="steps">
+    <li class="step active" data-step="1"><span class="dot">1</span> Fill in details</li>
+    <li class="step" data-step="2"><span class="dot">2</span> Processing</li>
+    <li class="step" data-step="3"><span class="dot">3</span> Results</li>
+  </ol>
+
   <form id="tailor-form">
     <div class="field">
       <label for="job_description">Job description</label>
       <textarea id="job_description" name="job_description" rows="9" placeholder="Paste the job posting here..." required></textarea>
+    </div>
+
+    <div class="field">
+      <label>Targeting a specific track? (optional)</label>
+      <div class="chips" id="role-chips">
+        <button type="button" class="chip" data-role="Software Engineering">💻 SWE</button>
+        <button type="button" class="chip" data-role="Product Management">📦 PM</button>
+        <button type="button" class="chip" data-role="Data / ML">📊 Data</button>
+        <button type="button" class="chip" data-role="Design">🎨 Design</button>
+      </div>
+      <input type="hidden" id="role_hint" name="role_hint" value="">
     </div>
 
     <div class="field">
@@ -39,13 +58,28 @@
       </div>
     </div>
 
-    <button type="submit" id="submit-btn">
-      <span class="btn-label">Tailor my resume</span>
-      <span class="spinner hidden" aria-hidden="true"></span>
-    </button>
+    <button type="button" class="link-btn" id="toggle-compare">+ Compare against more jobs</button>
+    <div class="field hidden" id="compare-field">
+      <label>Other job postings (up to 2 more)</label>
+      <textarea id="compare_job_2" rows="4" placeholder="Paste another job posting..."></textarea>
+      <textarea id="compare_job_3" rows="4" placeholder="...and one more, optional"></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button type="submit" id="submit-btn">
+        <span class="btn-label">Tailor my resume</span>
+        <span class="spinner hidden" aria-hidden="true"></span>
+      </button>
+      <button type="button" id="compare-btn" class="secondary hidden">Compare scores</button>
+    </div>
   </form>
 
   <div id="error" class="alert hidden"></div>
+
+  <section id="compare-results" class="results hidden">
+    <h2>📊 Score comparison</h2>
+    <div id="compare-chart" class="chart"></div>
+  </section>
 
   <section id="results" class="results hidden">
     <div class="score-block">
@@ -59,23 +93,41 @@
       <div class="score-caption">Keyword match against this job</div>
     </div>
 
+    <div id="ats-panel" class="ats-panel hidden">
+      <h3>⚠️ ATS heads-up</h3>
+      <ul id="ats-list"></ul>
+    </div>
+
+    <h3>🔑 Keyword cloud</h3>
+    <div class="cloud" id="keyword-cloud"></div>
+
     <div class="cols">
       <div>
-        <h3>Must-have — found</h3>
-        <ul class="pills found" id="must-found"></ul>
         <h3>Must-have — missing</h3>
         <ul class="pills missing" id="must-missing"></ul>
       </div>
       <div>
-        <h3>Nice-to-have — found</h3>
-        <ul class="pills found" id="nice-found"></ul>
         <h3>Nice-to-have — missing</h3>
         <ul class="pills missing" id="nice-missing"></ul>
       </div>
     </div>
 
-    <h2>Rewritten bullets</h2>
+    <h2>✏️ Rewritten bullets</h2>
+    <p class="hint">Struck-through words were cut, underlined words were added.</p>
     <div class="bullets" id="bullets"></div>
+
+    <div class="action-row">
+      <button type="button" id="cover-letter-btn" class="secondary">✉️ Generate cover letter paragraph</button>
+      <button type="button" id="export-btn" class="secondary">⬇️ Export as DOCX</button>
+    </div>
+
+    <div id="cover-letter-box" class="cover-letter hidden">
+      <div class="cover-letter-head">
+        <h3>Cover letter paragraph</h3>
+        <button type="button" id="copy-letter-btn" class="link-btn">Copy</button>
+      </div>
+      <p id="cover-letter-text"></p>
+    </div>
   </section>
 </main>
 

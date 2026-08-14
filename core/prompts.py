@@ -1,6 +1,6 @@
 """Prompt templates for PitchPolish."""
 
-EXTRACT_KEYWORDS_PROMPT = """You are an expert technical recruiter. Read the job description below and extract the most important skills, tools, and qualifications a strong candidate should highlight.
+EXTRACT_KEYWORDS_PROMPT = """You are an expert technical recruiter. Read the job description below and extract the most important skills, tools, and qualifications a strong candidate should highlight.{role_hint}
 
 Return ONLY a JSON object with this exact shape, no markdown fences, no commentary:
 {{
@@ -16,6 +16,8 @@ Job description:
 ---
 """
 
+ROLE_HINT_TEMPLATE = " The candidate is targeting a {role} role specifically, so weight keywords relevant to that track higher than tangential ones."
+
 REWRITE_BULLET_PROMPT = """You are a resume coach. Rewrite the resume bullet below so it speaks more directly to the target job, using the job's own vocabulary where it's a genuine, honest fit.
 
 Rules:
@@ -30,4 +32,23 @@ Original bullet:
 {bullet}
 
 Return ONLY the rewritten bullet text, no quotes, no commentary.
+"""
+
+COVER_LETTER_PROMPT = """You are a career coach writing a short, honest cover-letter paragraph (not a full letter — just the core pitch paragraph, 4-6 sentences).
+
+Rules:
+- Base it only on the resume bullets given below. Never invent achievements, numbers, or tools that aren't listed.
+- Reference the job's own language naturally where the candidate's real experience genuinely matches.
+- Confident and specific, not generic ("I am a hard worker" energy is banned).
+- No greeting ("Dear Hiring Manager") and no sign-off — just the pitch paragraph itself.
+
+Job description:
+---
+{job_description}
+---
+
+Resume bullets:
+{bullets}
+
+Return ONLY the paragraph text, no commentary.
 """

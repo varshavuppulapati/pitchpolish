@@ -3,15 +3,21 @@ import json
 import re
 
 from .llm import chat
-from .prompts import EXTRACT_KEYWORDS_PROMPT, REWRITE_BULLET_PROMPT
+from .prompts import (
+    COVER_LETTER_PROMPT,
+    EXTRACT_KEYWORDS_PROMPT,
+    REWRITE_BULLET_PROMPT,
+    ROLE_HINT_TEMPLATE,
+)
 
 
 def _strip_code_fence(raw):
     return re.sub(r"^```(json)?|```$", "", raw.strip(), flags=re.MULTILINE).strip()
 
 
-def extract_keywords(job_description):
-    raw = chat(EXTRACT_KEYWORDS_PROMPT.format(job_description=job_description))
+def extract_keywords(job_description, role_hint=None):
+    hint = ROLE_HINT_TEMPLATE.format(role=role_hint) if role_hint else ""
+    raw = chat(EXTRACT_KEYWORDS_PROMPT.format(job_description=job_description, role_hint=hint))
     raw = _strip_code_fence(raw)
     try:
         data = json.loads(raw)
@@ -62,3 +68,11 @@ def rewrite_bullets(bullets, keywords):
         new_bullet = chat(REWRITE_BULLET_PROMPT.format(keywords=keyword_str, bullet=bullet))
         rewritten.append({"original": bullet, "rewritten": new_bullet})
     return rewritten
+
+
+def generate_cover_letter(job_description, bullets):
+    bullets_str = "\n".join(f"- {b}" for b in bullets)
+    return chat(
+        COVER_LETTER_PROMPT.format(job_description=job_description, bullets=bullets_str),
+        temperature=0.5,
+    )
