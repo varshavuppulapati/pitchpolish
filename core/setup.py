@@ -36,22 +36,31 @@ def ensure_api_key():
     from dotenv import load_dotenv, set_key
 
     load_dotenv(_ENV_PATH)
-    if os.environ.get("OPENAI_API_KEY"):
+    if os.environ.get("GROQ_API_KEY"):
         return
 
-    print("No OpenAI API key found.")
+    if not sys.stdin.isatty():
+        # Non-interactive environment (a hosting platform's build/run step) -
+        # the key has to already be set as an env var there, since there's no
+        # terminal to prompt into.
+        raise RuntimeError(
+            "GROQ_API_KEY is not set. Set it as an environment variable in your "
+            "hosting provider's dashboard (get a free key at https://console.groq.com/keys)."
+        )
+
+    print("No Groq API key found.")
     try:
         from getpass import getpass
-        api_key = getpass("Paste your OpenAI API key (input hidden, get one at platform.openai.com/api-keys): ").strip()
+        api_key = getpass("Paste your Groq API key (input hidden, get a free one at console.groq.com/keys): ").strip()
     except Exception:
-        api_key = input("Paste your OpenAI API key: ").strip()
+        api_key = input("Paste your Groq API key: ").strip()
 
     if not api_key:
-        print("No key entered. The app will start, but requests to the model will fail until OPENAI_API_KEY is set.")
+        print("No key entered. The app will start, but requests to the model will fail until GROQ_API_KEY is set.")
         return
 
-    os.environ["OPENAI_API_KEY"] = api_key
+    os.environ["GROQ_API_KEY"] = api_key
     if not os.path.exists(_ENV_PATH):
         open(_ENV_PATH, "a").close()
-    set_key(_ENV_PATH, "OPENAI_API_KEY", api_key)
+    set_key(_ENV_PATH, "GROQ_API_KEY", api_key)
     print(f"Saved to {_ENV_PATH} — you won't be asked again.")
