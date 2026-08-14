@@ -2,17 +2,31 @@
 
 **[Try it live →](https://pitchpolish.onrender.com)**
 
-Upload your resume (or paste your bullets) and a job posting. Get back a match score, a list of what's missing, and bullets rewritten to speak the job's language — without inventing anything you didn't actually do.
+Upload your resume (or paste your bullets) and a job posting. Get back a match score, a radar breakdown, a visual keyword bridge, and bullets rewritten to speak the job's language — without inventing anything you didn't do.
 
 *(Free-tier hosting: the first load after a few idle minutes takes 30–50 seconds to wake up.)*
 
+## Features
+
+- **Resume upload** — PDF, DOCX, or TXT, parsed and turned into bullets automatically
+- **Match radar chart** — a 4-axis breakdown (Skills / Tools / Experience / Culture), not just one flat score
+- **Keyword bridge view** — job posting and resume shown side by side with matched keywords highlighted and visually connected
+- **Word-level diff** — rewritten bullets show exactly what changed, not just before/after
+- **Drag-to-reorder bullets** — grab the ⠿ handle to prioritize which ones lead
+- **Draggable keyword chips** — drag a missing keyword straight onto your resume to add it
+- **Tone slider** — live re-rewrite from Conservative to Bold
+- **Role presets** — SWE / PM / Data / Design chips bias keyword weighting toward that track
+- **Multi-job comparison** — paste up to 3 postings, see a bar chart of which one you already match best
+- **Cover letter generator** — one click, grounded in the same tailored bullets
+- **DOCX export** of the tailored bullets
+- **ATS red-flag checks** — embedded images, likely-scanned PDFs, multi-column layouts, tables
+- Mouse-reactive glow, drifting background, a draggable floating score badge, and confetti on results — because a resume tool doesn't have to look like a form
+
 ## How it works
 
-1. **Extract** — an LLM reads the job description and pulls out must-have and nice-to-have keywords as structured JSON.
+1. **Extract** — an LLM reads the job description and pulls out must-have/nice-to-have keywords, each classified into one of four radar axes.
 2. **Score** — a deterministic keyword-overlap check compares your resume against those keywords, so the score is fast, free, and reproducible run to run.
-3. **Rewrite** — each bullet is rewritten with a strict "don't fabricate" instruction: it can reorder emphasis and borrow the job's vocabulary, but it can't invent numbers, tools, or achievements you didn't list.
-
-Upload a PDF, DOCX, or TXT resume and it's parsed automatically — no need to copy-paste bullets by hand.
+3. **Rewrite** — each bullet is rewritten with a strict "don't fabricate" instruction, at whatever tone the slider is set to.
 
 ## Run it yourself
 
@@ -40,11 +54,13 @@ pitchpolish/
 ├── core/
 │   ├── setup.py                # Auto-installs deps, prompts + saves API key on first run
 │   ├── llm.py                  # Groq (OpenAI-compatible) client wrapper
-│   ├── prompts.py              # Prompt templates
-│   ├── tailor.py                # Keyword extraction, scoring, rewriting
-│   └── resume_parser.py        # PDF/DOCX/TXT text extraction + bullet detection
+│   ├── prompts.py              # Prompt templates (keywords, rewriting, cover letter)
+│   ├── tailor.py                # Keyword extraction, scoring, radar, rewriting
+│   ├── resume_parser.py        # PDF/DOCX/TXT text extraction + bullet detection
+│   ├── resume_export.py        # DOCX export of tailored bullets
+│   └── ats_check.py            # ATS red-flag heuristics
 ├── templates/index.html
-├── static/{style.css, app.js}  # Drag-and-drop upload, tabs, animated results
+├── static/{style.css, app.js}  # Drag-and-drop, radar chart, keyword bridge, animations
 ├── tests/
 ├── requirements.txt
 ├── render.yaml

@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+<div class="glow" id="glow" aria-hidden="true"></div>
 <div class="blobs" aria-hidden="true"><span class="b1"></span><span class="b2"></span><span class="b3"></span></div>
 
 <header>
@@ -36,6 +37,16 @@
         <button type="button" class="chip" data-role="Design">🎨 Design</button>
       </div>
       <input type="hidden" id="role_hint" name="role_hint" value="">
+    </div>
+
+    <div class="field">
+      <label for="tone_slider">Rewrite tone</label>
+      <div class="slider-row">
+        <span class="slider-end">Conservative</span>
+        <input type="range" id="tone_slider" min="0" max="2" value="1" step="1">
+        <span class="slider-end">Bold</span>
+      </div>
+      <input type="hidden" id="tone" name="tone" value="balanced">
     </div>
 
     <div class="field">
@@ -90,7 +101,12 @@
         </svg>
         <div class="meter-value" id="score-value">0%</div>
       </div>
-      <div class="score-caption">Keyword match against this job</div>
+      <div class="score-caption">Keyword match against this job · drag the badge below anywhere</div>
+    </div>
+
+    <h3>🕸️ Match radar</h3>
+    <div class="radar-wrap">
+      <svg id="radar-svg" viewBox="0 0 240 240" width="240" height="240"></svg>
     </div>
 
     <div id="ats-panel" class="ats-panel hidden">
@@ -98,12 +114,17 @@
       <ul id="ats-list"></ul>
     </div>
 
-    <h3>🔑 Keyword cloud</h3>
-    <div class="cloud" id="keyword-cloud"></div>
+    <h3>🌉 Keyword bridge</h3>
+    <p class="hint">Matched keywords are highlighted and connected across both texts. Drag a missing keyword chip onto your resume to add it.</p>
+    <div class="bridge-wrap">
+      <svg class="bridge-lines" id="bridge-lines"></svg>
+      <div class="bridge-col" id="bridge-job"></div>
+      <div class="bridge-col" id="bridge-resume"></div>
+    </div>
 
     <div class="cols">
       <div>
-        <h3>Must-have — missing</h3>
+        <h3>Must-have — missing (drag onto your resume)</h3>
         <ul class="pills missing" id="must-missing"></ul>
       </div>
       <div>
@@ -113,7 +134,7 @@
     </div>
 
     <h2>✏️ Rewritten bullets</h2>
-    <p class="hint">Struck-through words were cut, underlined words were added.</p>
+    <p class="hint">Drag the ⠿ handle to reorder. Struck-through words were cut, underlined words were added.</p>
     <div class="bullets" id="bullets"></div>
 
     <div class="action-row">
@@ -131,6 +152,7 @@
   </section>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

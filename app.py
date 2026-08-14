@@ -12,7 +12,7 @@ from flask import Flask, jsonify, render_template, request, send_file  # noqa: E
 from core.ats_check import check_ats_issues  # noqa: E402
 from core.resume_export import build_docx  # noqa: E402
 from core.resume_parser import extract_bullets, extract_text  # noqa: E402
-from core.tailor import extract_keywords, generate_cover_letter, rewrite_bullets, score_match  # noqa: E402
+from core.tailor import compute_radar, extract_keywords, generate_cover_letter, rewrite_bullets, score_match  # noqa: E402
 
 app = Flask(__name__)
 
@@ -56,6 +56,7 @@ def _resolve_resume(pasted_bullets_raw, resume_file):
 def api_tailor():
     job_description = request.form.get("job_description", "").strip()
     role_hint = request.form.get("role_hint", "").strip() or None
+    tone = request.form.get("tone", "balanced")
     pasted_bullets_raw = request.form.get("resume_bullets", "").strip()
     resume_file = request.files.get("resume_file")
 
@@ -69,7 +70,8 @@ def api_tailor():
     try:
         keywords = extract_keywords(job_description, role_hint=role_hint)
         match = score_match(resume_text, keywords)
-        rewritten = rewrite_bullets(bullets, keywords)
+        radar = compute_radar(resume_text, keywords)
+        rewritten = rewrite_bullets(bullets, keywords, tone=tone)
     except RuntimeError as e:
         return jsonify(error=str(e)), 500
     except Exception as e:
@@ -78,8 +80,10 @@ def api_tailor():
     return jsonify(
         keywords=keywords,
         match=match,
+        radar=radar,
         rewritten=rewritten,
         resume_text=resume_text,
+        job_description=job_description,
         ats_issues=ats_issues,
     )
 
