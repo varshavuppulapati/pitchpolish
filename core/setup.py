@@ -10,7 +10,7 @@ import sys
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _ENV_PATH = os.path.join(_ROOT, ".env")
-_REQUIRED_MODULES = ["flask", "openai", "dotenv"]
+_REQUIRED_MODULES = ["flask", "openai", "dotenv", "pypdf", "docx"]
 
 
 def ensure_dependencies():
