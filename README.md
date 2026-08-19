@@ -4,7 +4,7 @@
 
 Upload your resume (or paste your bullets) and a job posting. Get back a match score, a radar breakdown, a visual keyword bridge, and bullets rewritten to speak the job's language — without inventing anything you didn't do.
 
-*(Free-tier hosting: the first load after a few idle minutes takes 30–50 seconds to wake up.)*
+
 
 ## Features
 
