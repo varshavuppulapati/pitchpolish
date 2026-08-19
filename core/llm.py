@@ -11,7 +11,7 @@ from openai import OpenAI
 _client = None
 
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
-CHAT_MODEL = "llama-3.3-70b-versatile"
+CHAT_MODEL = "openai/gpt-oss-120b"
 
 
 def get_client():
