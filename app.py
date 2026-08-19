@@ -6,6 +6,7 @@ ensure_api_key()
 import json  # noqa: E402
 import os  # noqa: E402
 import tempfile  # noqa: E402
+from concurrent.futures import ThreadPoolExecutor  # noqa: E402
 
 from flask import Flask, jsonify, render_template, request, send_file  # noqa: E402
 
@@ -19,6 +20,15 @@ app = Flask(__name__)
 ALLOWED_RESUME_EXT = {".pdf", ".docx", ".txt"}
 MAX_BULLETS = 12  # keeps a full resume upload from triggering dozens of LLM calls
 MAX_COMPARE_JOBS = 3
+
+
+@app.errorhandler(Exception)
+def handle_uncaught_error(e):
+    """Guarantees /api/* always returns JSON, even on a bug we didn't anticipate -
+    otherwise Flask's default HTML error page breaks the frontend's res.json()."""
+    if request.path.startswith("/api/"):
+        return jsonify(error=f"Unexpected server error: {e}"), 500
+    raise e
 
 
 @app.route("/", methods=["GET"])
@@ -129,11 +139,13 @@ def api_compare():
         return err
 
     try:
-        results = []
-        for i, job_description in enumerate(jobs):
+        def _score_one(job_description):
             keywords = extract_keywords(job_description)
-            match = score_match(resume_text, keywords)
-            results.append({"label": f"Job {i + 1}", "score": match["score"]})
+            return score_match(resume_text, keywords)["score"]
+
+        with ThreadPoolExecutor(max_workers=len(jobs)) as pool:
+            scores = list(pool.map(_score_one, jobs))
+        results = [{"label": f"Job {i + 1}", "score": s} for i, s in enumerate(scores)]
     except RuntimeError as e:
         return jsonify(error=str(e)), 500
     except Exception as e:
@@ -152,7 +164,11 @@ def api_export():
     if not rewritten:
         return jsonify(error="Tailor your resume first."), 400
 
-    buf = build_docx(rewritten)
+    try:
+        buf = build_docx(rewritten)
+    except Exception as e:
+        return jsonify(error=f"Couldn't build the DOCX: {e}"), 500
+
     return send_file(
         buf,
         as_attachment=True,

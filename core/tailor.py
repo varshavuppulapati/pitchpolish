@@ -1,6 +1,7 @@
 """Core matching + rewriting logic for PitchPolish."""
 import json
 import re
+from concurrent.futures import ThreadPoolExecutor
 
 from .llm import chat
 from .prompts import (
@@ -92,20 +93,24 @@ def compute_radar(resume_text, keywords):
 
 
 def rewrite_bullets(bullets, keywords, tone="balanced"):
+    """Fires one LLM call per bullet, in parallel, so a 10-bullet resume doesn't
+    take 10x as long as a 1-bullet one and risk a gateway timeout."""
     all_terms = [i["term"] for i in keywords.get("must_have", []) + keywords.get("nice_to_have", [])]
     keyword_str = ", ".join(all_terms) if all_terms else "no specific keywords found"
     tone_instruction = TONE_INSTRUCTIONS.get(tone, TONE_INSTRUCTIONS["balanced"])
 
-    rewritten = []
-    for bullet in bullets:
-        bullet = bullet.strip()
-        if not bullet:
-            continue
+    cleaned = [b.strip() for b in bullets if b.strip()]
+    if not cleaned:
+        return []
+
+    def _rewrite_one(bullet):
         new_bullet = chat(
             REWRITE_BULLET_PROMPT.format(keywords=keyword_str, bullet=bullet, tone_instruction=tone_instruction)
         )
-        rewritten.append({"original": bullet, "rewritten": new_bullet})
-    return rewritten
+        return {"original": bullet, "rewritten": new_bullet}
+
+    with ThreadPoolExecutor(max_workers=min(len(cleaned), 8)) as pool:
+        return list(pool.map(_rewrite_one, cleaned))
 
 
 def generate_cover_letter(job_description, bullets):
